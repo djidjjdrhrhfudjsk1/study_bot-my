@@ -1,0 +1,41 @@
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+import logging
+
+TOKEN = "توکن-ربات-تو-اینجا-بذار"
+USER_ID = 5621895197  # آیدی تو اینجا بذار
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+def start(update, context):
+    user = update.effective_user
+    if user.id != USER_ID:
+        update.message.reply_text("دسترسی ندارید.")
+        return
+    update.message.reply_text("سلام! من ربات درس‌خواندن هستم. برنامه‌ات رو بهم بگو.")
+    return 1
+
+def set_plan(update, context):
+    text = update.message.text
+    update.message.reply_text(f"برنامه‌ات ثبت شد: {text}\nمن هر روز یادآوری می‌کنم.")
+    return ConversationHandler.END
+
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            1: [MessageHandler(Filters.text & ~Filters.command, set_plan)]
+        },
+        fallbacks=[]
+    )
+    dp.add_handler(conv_handler)
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
